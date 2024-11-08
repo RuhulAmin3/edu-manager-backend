@@ -24,6 +24,12 @@ async function bootstrap() {
     }),
   );
 
+  // Enable CORS to allow any domain
+  app.enableCors({
+    origin: '*', // Allows any origin to access the API
+    credentials: true,
+  });
+
   SwaggerSetup(app, configService);
 
   await app.listen(port);

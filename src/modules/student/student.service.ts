@@ -53,7 +53,6 @@ export class StudentService {
 
     const finalCondition: Prisma.StudentWhereInput =
       conditions.length > 0 ? { AND: conditions } : {};
-    console.log(JSON.stringify(finalCondition));
     const result = await this.prisma.student.findMany({
       where: finalCondition,
       skip: skip,
