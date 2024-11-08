@@ -19,12 +19,14 @@ import { NoticeModule } from './modules/notice/notice.module';
 import { AttendenceModule } from './modules/attendance/attendance.module';
 import { FeeModule } from './modules/fee/fee.module';
 import { LeaderboardModule } from './modules/leaderboard/leaderboard.module';
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 // import { JwtAuthGuard } from './modules/auth/guard/jwt-auth.guard';
 // import { RolesGuard } from './modules/auth/guard/roles.guard';
 import { MailModule } from './modules/mail/mail.module';
 import { ErrorExceptionFilter } from './common/filters/error-exception.filters';
 import { SeederModule } from './modules/seeder/seeder.module';
+import { JwtAuthGuard } from './modules/auth/guard/jwt-auth.guard';
+import { RolesGuard } from './modules/auth/guard/roles.guard';
 
 @Module({
   imports: [
@@ -55,14 +57,14 @@ import { SeederModule } from './modules/seeder/seeder.module';
   controllers: [AppController],
   providers: [
     AppService,
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: JwtAuthGuard,
-    // },
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: RolesGuard,
-    // },
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
     {
       provide: APP_FILTER,
       useClass: ErrorExceptionFilter,
