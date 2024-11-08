@@ -248,7 +248,7 @@ model Fee {
 
 type AttendanceStudents {
   studentId String  @db.ObjectId
-  isPresent Boolean
+  isPresent Boolean // type:  [Present, Absent, Late, Holiday, Halfday]
   name      String
 }
 

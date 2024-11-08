@@ -99,6 +99,13 @@ export class ExamService {
               },
             };
           } else {
+            if (key == 'year') {
+              return {
+                [key]: {
+                  equals: +filterOptions[key],
+                },
+              };
+            }
             return {
               [key]: {
                 equals: filterOptions[key],
@@ -128,6 +135,9 @@ export class ExamService {
       },
     });
 
+    if (!result.length) {
+      throw new NotFoundException('Data Not found');
+    }
     const totalDoc = await this.prisma.exam.count({
       where: finalCondition,
     });
