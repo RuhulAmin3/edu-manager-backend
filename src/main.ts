@@ -6,7 +6,6 @@ import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import { SwaggerSetup } from './swagger-setup';
-import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -16,7 +15,6 @@ async function bootstrap() {
 
   app.setGlobalPrefix(global_prefix);
   app.use(cookieParser());
-  app.useStaticAssets(join(__dirname, '..', 'public'));
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
@@ -35,7 +33,7 @@ async function bootstrap() {
 
   // Add a default route handler for the root URL
   app.getHttpAdapter().get('/', (req, res: Response) => {
-    res.json({ message: 'Welcome to the API!' }); // Use res.json instead of res.send
+    res.json({ message: 'Welcome to the API!' });
   });
 
   await app.listen(port);
