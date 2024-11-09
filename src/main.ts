@@ -4,8 +4,9 @@ import { ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
-import { Response } from 'express'; // Import Response from express
+import { Response } from 'express';
 import { SwaggerSetup } from './swagger-setup';
+import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -15,7 +16,7 @@ async function bootstrap() {
 
   app.setGlobalPrefix(global_prefix);
   app.use(cookieParser());
-
+  app.useStaticAssets(join(__dirname, '..', 'public'));
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
