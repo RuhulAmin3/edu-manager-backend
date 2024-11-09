@@ -4,7 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
-import { Response } from 'express'; // Import Response from express
+import { Response } from 'express';
 import { SwaggerSetup } from './swagger-setup';
 
 async function bootstrap() {
@@ -15,7 +15,6 @@ async function bootstrap() {
 
   app.setGlobalPrefix(global_prefix);
   app.use(cookieParser());
-
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
@@ -34,7 +33,7 @@ async function bootstrap() {
 
   // Add a default route handler for the root URL
   app.getHttpAdapter().get('/', (req, res: Response) => {
-    res.json({ message: 'Welcome to the API!' }); // Use res.json instead of res.send
+    res.json({ message: 'Welcome to the API!' });
   });
 
   await app.listen(port);
