@@ -49,7 +49,6 @@ export class ExamController {
   async getExams(@Query() query: Record<string, any>) {
     const paginationsFields = queryPick(query, paginationOptions);
     const searchOptions = queryPick(query, queryOptions);
-
     const result = await this.examService.getAllExam(
       searchOptions,
       paginationsFields,
