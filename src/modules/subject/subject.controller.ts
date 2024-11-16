@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
 } from '@nestjs/common';
 import { SubjectService } from './subject.service';
 import { CreateSubjectDTO, UpdateSubjectDTO } from './dto/create-subject.dto';
@@ -23,6 +24,7 @@ import { paginationOptions } from 'src/constants/paginationOptions';
 import { queryOptions } from './subject.constant';
 import { HasRoles } from '../auth/decorator/roles.decorator';
 import { ROLE } from '@prisma/client';
+import { Request } from 'express';
 
 @Controller('/subject')
 @ApiTags('Subject')
@@ -46,9 +48,10 @@ export class SubjectController {
   @Get()
   @ApiOkResponse({ type: [CreateSubjectDTO] })
   @ApiOperation({ description: 'get all subject endpoints' })
-  async getSubjects(@Query() query: Record<string, any>) {
+  async getSubjects(@Req() req: Request, @Query() query: Record<string, any>) {
     const paginationsFields = queryPick(query, paginationOptions);
     const searchOptions = queryPick(query, queryOptions);
+    console.log('refreshToken', JSON.stringify(req.cookies['refreshToken']));
     const result = await this.subjectService.getAllSubject(
       searchOptions,
       paginationsFields,
