@@ -51,7 +51,6 @@ export class SubjectController {
   async getSubjects(@Req() req: Request, @Query() query: Record<string, any>) {
     const paginationsFields = queryPick(query, paginationOptions);
     const searchOptions = queryPick(query, queryOptions);
-    console.log('refreshToken', JSON.stringify(req.cookies['refreshToken']));
     const result = await this.subjectService.getAllSubject(
       searchOptions,
       paginationsFields,

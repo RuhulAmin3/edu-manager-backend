@@ -240,7 +240,6 @@ export class AuthService {
       hashedPassword,
     );
     if (!isPasswordMatched) {
-      // console.log("isPasswordMatched", isPasswordMatched);
       throw new BadRequestException('wrong crediential provided');
     }
     return isPasswordMatched;

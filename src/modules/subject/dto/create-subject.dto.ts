@@ -1,18 +1,16 @@
-import { ApiProperty, ApiResponseProperty } from '@nestjs/swagger';
-import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsInt, IsNotEmpty, IsString } from 'class-validator';
 import { PartialType } from '@nestjs/mapped-types';
+import { Transform } from 'class-transformer';
 
 export class CreateSubjectDTO {
-  @IsOptional()
-  @ApiResponseProperty()
-  id: string;
-
-  @IsInt({ message: 'subject code must be number' })
+  @IsInt({ message: 'subject code must be a number' })
   @IsNotEmpty({ message: 'subject code is required' })
+  @Transform(({ value }) => parseInt(value, 10)) // Correctly transform value to a number
   code: number;
 
   @IsString()
-  @IsNotEmpty({ message: 'title must be required' })
+  @IsNotEmpty({ message: 'title is required' })
   @ApiProperty()
   title: string;
 }

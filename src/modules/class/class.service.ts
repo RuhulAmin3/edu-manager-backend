@@ -15,9 +15,12 @@ export class ClassService {
   constructor(private readonly prisma: PrismaService) {}
 
   async addNewClass(data: CreateClassDTO) {
-    const isExist = await this.prisma.class.findUnique({
+    const isExist = await this.prisma.class.findFirst({
       where: {
-        className: data.className,
+        className: {
+          equals: data.className,
+          mode: 'insensitive',
+        },
       },
     });
 

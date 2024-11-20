@@ -9,7 +9,6 @@ import { SwaggerSetup } from './swagger-setup';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-
   const configService = app.get(ConfigService);
   const { port, global_prefix } = configService.get('APP');
 
@@ -24,6 +23,7 @@ async function bootstrap() {
   );
 
   const corsOptions = {
+    // origin: 'https://edu-manager-sass.netlify.app',
     origin: 'http://localhost:5173',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'],
     allowedHeaders: [

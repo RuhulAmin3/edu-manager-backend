@@ -60,7 +60,6 @@ export class SubjectService {
         })),
       });
     }
-    console.log('filterOptions', filterOptions);
     if (Object.keys(filterOptions).length > 0) {
       conditions.push({
         AND: Object.entries(filterOptions).map(([field, value]) => {
@@ -115,6 +114,16 @@ export class SubjectService {
 
     if (!result) {
       throw new NotFoundException('subject not found');
+    }
+
+    const isExist = await this.prisma.subject.findUnique({
+      where: {
+        code: updatedData.code as number,
+      },
+    });
+
+    if (isExist?.id != id) {
+      throw new ConflictException('subject code already exist');
     }
 
     const updatedSubject = await this.prisma.subject.update({
