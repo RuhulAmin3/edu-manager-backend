@@ -11,6 +11,7 @@ export const teacherFilterAbleField = [
   'teacherId',
   'gender',
   'email',
+  'bloodGroup',
   'designation',
   'subject',
   'contactNo',
