@@ -332,7 +332,7 @@ enum GUARDIAN_ACCOUNT_STATUS {
 
 enum STUDENT_ACCOUNT_STATUS {
   Active
-  Inacitve
+  Inactive
   Block
 }
 

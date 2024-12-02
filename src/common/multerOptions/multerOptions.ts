@@ -17,6 +17,7 @@ export const multerOptions = {
       );
     }
   },
+
   storage: diskStorage({
     destination: (req: any, file: any, cb: any) => {
       const uploadPath = process.env.UPLOAD_PATH;

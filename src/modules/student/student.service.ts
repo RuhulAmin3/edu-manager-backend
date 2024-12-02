@@ -140,7 +140,6 @@ export class StudentService {
           },
           data: updatedStudentData,
         });
-
         return result;
       });
     }

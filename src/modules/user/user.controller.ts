@@ -24,17 +24,17 @@ export class UserController {
 
   @Post('/student')
   @UseInterceptors(
-    FileInterceptor('file', multerOptions),
+    FileInterceptor('image', multerOptions),
     new JsonParseInterceptor('student'),
   )
   async createStudent(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() image: Express.Multer.File,
     @Body('student') student: CreateStudentDTO,
     @Body('password') password: string,
   ) {
     const result = await this.userService.createStudent(
       student,
-      file,
+      image,
       password,
     );
     const responseObj = apiResponse<CreateStudentDTO>({
@@ -47,17 +47,17 @@ export class UserController {
 
   @Post('/teacher')
   @UseInterceptors(
-    FileInterceptor('file', multerOptions),
+    FileInterceptor('image', multerOptions),
     new JsonParseInterceptor('teacher'),
   )
   async createTeacher(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() image: Express.Multer.File,
     @Body('teacher') teacher: CreateTeacherDTO,
     @Body('password') password: string,
   ) {
     const result = await this.userService.createTeacher(
       teacher,
-      file,
+      image,
       password,
     );
 
@@ -72,17 +72,17 @@ export class UserController {
   @Post('/guardian')
   @Public()
   @UseInterceptors(
-    FileInterceptor('file', multerOptions),
+    FileInterceptor('image', multerOptions),
     new JsonParseInterceptor('guardian'),
   )
   async createGuardian(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() image: Express.Multer.File,
     @Body('guardian') guardian: CreateGuardianDTO,
   ) {
     const { password, ...restData } = guardian;
     const result = await this.userService.createGuardian(
       restData,
-      file,
+      image,
       password,
     );
 

@@ -32,6 +32,7 @@ export class UserService {
       role: ROLE.STUDENT,
     };
 
+    console.log('file', file);
     // password hashed
     const hashedPassword = await this.userUtils.hashedPassword(
       userData.password,
