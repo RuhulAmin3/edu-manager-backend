@@ -45,7 +45,7 @@ model Student {
   image            String
   address          String
   shortDescription String?
-
+  imagePublicId    String?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   user        User?        @relation(fields: [userId], references: [id])
@@ -70,6 +70,7 @@ model Teacher {
   type                     TEACHER_TYPE                 @default(Monthly)
   educationalQualification EducationalQualificationType
   image                    String
+  imagePublicId            String?
   dateOfBirth              DateTime
   address                  String
   shortDescription         String?
@@ -96,6 +97,7 @@ model Guardian {
   occupation       String
   bloodGroup       BLOOD_GROUP
   image            String
+  imagePublicId    String?
   accountStatus    GUARDIAN_ACCOUNT_STATUS @default(Pending)
   address          String
   user             User?                   @relation(fields: [userId], references: [id])

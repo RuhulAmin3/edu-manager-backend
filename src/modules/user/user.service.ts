@@ -31,8 +31,6 @@ export class UserService {
         : this.configService.get('USER.student_pass'),
       role: ROLE.STUDENT,
     };
-
-    console.log('file', file);
     // password hashed
     const hashedPassword = await this.userUtils.hashedPassword(
       userData.password,
@@ -68,10 +66,10 @@ export class UserService {
     }
 
     try {
-      const { secure_url } =
+      const { secure_url, public_id } =
         await this.cloudinaryService.uploadImageToCloud(file);
       studentData.image = secure_url;
-
+      studentData['imagePublicId'] = public_id;
       const result = await this.prismaService.$transaction(async (tsx) => {
         const user = await tsx.user.create({
           data: userData,
@@ -147,10 +145,10 @@ export class UserService {
     userData['teacherId'] = teacherId;
     teacherData.teacherId = teacherId;
     try {
-      // const { secure_url } =
-      //   await this.cloudinaryService.uploadImageToCloud(file);
-      teacherData.image =
-        'https://res.cloudinary.com/dwykyqzzk/image/upload/v1708335326/zbsav7bbwwtvpvo70mkb.jpg';
+      const { secure_url, public_id } =
+        await this.cloudinaryService.uploadImageToCloud(file);
+      teacherData.image = secure_url;
+      teacherData['imagePublicId'] = public_id;
 
       const result = await this.prismaService.$transaction(async (tsx) => {
         const user = await tsx.user.create({
@@ -213,10 +211,10 @@ export class UserService {
       );
     }
     try {
-      // const { secure_url } =
-      //   await this.cloudinaryService.uploadImageToCloud(file);
-      guardianData.image =
-        'https://res.cloudinary.com/dwykyqzzk/image/upload/v1708335326/zbsav7bbwwtvpvo70mkb.jpg';
+      const { secure_url, public_id } =
+        await this.cloudinaryService.uploadImageToCloud(file);
+      guardianData.image = secure_url;
+      guardianData['imagePublicId'] = public_id;
 
       const result = await this.prismaService.$transaction(async (tsx) => {
         const user = await tsx.user.create({
@@ -234,6 +232,25 @@ export class UserService {
       return result;
     } catch (err) {
       console.log(err);
+      throw new BadRequestException(err);
+    }
+  }
+
+  async uploadFile(file: Express.Multer.File) {
+    try {
+      const { secure_url, public_id } =
+        await this.cloudinaryService.uploadImageToCloud(file);
+      return { url: secure_url, public_id };
+    } catch (err) {
+      throw new BadRequestException(err);
+    }
+  }
+
+  async removeFile(public_id: string) {
+    try {
+      await this.cloudinaryService.deleteImageFromCloud(public_id);
+      return 'successfully deleted file';
+    } catch (err) {
       throw new BadRequestException(err);
     }
   }
