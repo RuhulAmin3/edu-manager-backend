@@ -1,11 +1,11 @@
-import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';
-import * as cookieParser from 'cookie-parser';
-import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
-import { Response } from 'express';
 import { SwaggerSetup } from './swagger-setup';
+import * as cookieParser from 'cookie-parser';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { Response } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -38,6 +38,7 @@ async function bootstrap() {
     ],
     credentials: true,
   };
+
   // Enable CORS to allow any domain
   app.enableCors(corsOptions);
 

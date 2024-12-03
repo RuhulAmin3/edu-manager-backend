@@ -123,28 +123,54 @@ export class StudentService {
         throw new BadRequestException('update class does not added yet');
       }
       updatedStudent = await this.prisma.$transaction(async (tsx) => {
-        const { studentIds } = await tsx.class.findUnique({
-          where: { className: updatedStudentData.className },
+        // Step 1: Fetch the current studentIds of the previous class
+        const previousClassStudentIds = await tsx.class.findUnique({
+          where: { className: result.className },
+          select: { studentIds: true },
         });
 
+        if (!previousClassStudentIds) {
+          throw new NotFoundException('Previous class not found');
+        }
+
+        // Step 2: Remove the student from the previous class
         await tsx.class.update({
-          where: {
-            className: updatedStudentData.className,
-          },
+          where: { className: result.className },
           data: {
             studentIds: {
-              set: [...studentIds, updatedStudentData.studentId],
+              set: previousClassStudentIds.studentIds.filter(
+                (studentId) => studentId !== updatedStudentData.studentId,
+              ),
             },
           },
         });
 
-        const result = await tsx.student.update({
-          where: {
-            id,
+        // Step 3: Fetch and update the new class studentIds
+        const newClass = await tsx.class.findUnique({
+          where: { className: updatedStudentData.className },
+          select: { studentIds: true },
+        });
+
+        if (!newClass) {
+          throw new BadRequestException('New class not found');
+        }
+
+        await tsx.class.update({
+          where: { className: updatedStudentData.className },
+          data: {
+            studentIds: {
+              set: [...newClass.studentIds, updatedStudentData.studentId],
+            },
           },
+        });
+
+        // Step 4: Update the student data
+        const updatedStudentResult = await tsx.student.update({
+          where: { id },
           data: updatedStudentData,
         });
-        return result;
+
+        return updatedStudentResult;
       });
     }
 

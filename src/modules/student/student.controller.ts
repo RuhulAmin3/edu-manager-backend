@@ -78,7 +78,6 @@ export class StudentController {
   @ApiOperation({ description: 'delete student endpoints' })
   async deleteStudent(@Param('id') id: string) {
     const result = await this.studentService.deleteStudent(id);
-
     const response = apiResponse({
       statusCode: HttpStatus.OK,
       data: result,
