@@ -6,10 +6,14 @@ import { PrismaService } from '../prisma/prisma.service';
 import { Prisma, Teacher } from '@prisma/client';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { teacherSearchAbleField } from './teacher.constant';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Injectable()
 export class TeacherService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   async getAllTeacher(searchOptions, paginationOptions) {
     const { page, limit, skip, sortBy, sortOrder } =
@@ -129,6 +133,9 @@ export class TeacherService {
       throw new NotFoundException('teacher not found');
     }
 
+    if (result.imagePublicId) {
+      await this.cloudinaryService.deleteImageFromCloud(result.imagePublicId);
+    }
     await this.prisma.$transaction(async (tsx) => {
       // delete from teacher collection
       await tsx.teacher.delete({

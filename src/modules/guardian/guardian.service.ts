@@ -6,10 +6,14 @@ import { PrismaService } from '../prisma/prisma.service';
 import { Guardian, Prisma } from '@prisma/client';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { guardianSearchAbleField } from './guardian.constant';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Injectable()
 export class GuardianService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   async getAllGuardian(searchOptions, paginationOptions) {
     const { page, limit, skip, sortBy, sortOrder } =
@@ -122,6 +126,9 @@ export class GuardianService {
       throw new NotFoundException('guardian not found');
     }
 
+    if (result.imagePublicId) {
+      await this.cloudinaryService.deleteImageFromCloud(result.imagePublicId);
+    }
     await this.prisma.$transaction(async (tsx) => {
       // delete from guardian collection
       await tsx.guardian.delete({

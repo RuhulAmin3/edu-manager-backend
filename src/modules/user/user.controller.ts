@@ -23,29 +23,6 @@ import { Public } from '../auth/decorator/public.decorator';
 @ApiTags('User')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-
-  @Post('/file-upload')
-  @UseInterceptors(FileInterceptor('image', multerOptions))
-  async fileUpload(@UploadedFile() image: Express.Multer.File) {
-    const url = await this.userService.uploadFile(image);
-    const responseObj = apiResponse({
-      statusCode: HttpStatus.OK,
-      data: url,
-      message: 'file uploaded successfully',
-    });
-    return responseObj;
-  }
-
-  @Delete('/file-remove/:publicId')
-  async fileRemove(@Param('publicId') publicId: string) {
-    await this.userService.removeFile(publicId);
-    const responseObj = apiResponse({
-      statusCode: HttpStatus.OK,
-      message: 'file deleted successfully',
-    });
-    return responseObj;
-  }
-
   @Post('/student')
   @UseInterceptors(
     FileInterceptor('image', multerOptions),
@@ -114,6 +91,28 @@ export class UserController {
       statusCode: HttpStatus.CREATED,
       data: result,
       message: 'guardian created successfully',
+    });
+    return responseObj;
+  }
+
+  @Post('/file-upload')
+  @UseInterceptors(FileInterceptor('image', multerOptions))
+  async fileUpload(@UploadedFile() image: Express.Multer.File) {
+    const url = await this.userService.uploadFile(image);
+    const responseObj = apiResponse({
+      statusCode: HttpStatus.OK,
+      data: url,
+      message: 'file uploaded successfully',
+    });
+    return responseObj;
+  }
+
+  @Delete('/file-remove/:publicId')
+  async fileRemove(@Param('publicId') publicId: string) {
+    await this.userService.removeFile(publicId);
+    const responseObj = apiResponse({
+      statusCode: HttpStatus.OK,
+      message: 'file deleted successfully',
     });
     return responseObj;
   }

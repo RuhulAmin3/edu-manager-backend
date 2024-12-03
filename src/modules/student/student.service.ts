@@ -7,10 +7,14 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Injectable()
 export class StudentService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   async getAllStudent(searchOptions, paginationOptions) {
     const { page, limit, skip, sortBy, sortOrder } =
@@ -153,9 +157,12 @@ export class StudentService {
         id,
       },
     });
-
     if (!result) {
       throw new NotFoundException('student not found');
+    }
+
+    if (result.imagePublicId) {
+      await this.cloudinaryService.deleteImageFromCloud(result.imagePublicId);
     }
 
     await this.prisma.$transaction(async (tsx) => {
