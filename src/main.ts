@@ -23,7 +23,7 @@ async function bootstrap() {
   );
 
   const corsOptions = {
-    origin: 'https://edu-manager-sass.netlify.app',
+    origin: ['https://edu-manager-sass.netlify.app', 'http://localhost:5173'],
     // origin: 'http://localhost:5173',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'],
     allowedHeaders: [

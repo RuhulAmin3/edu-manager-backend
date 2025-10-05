@@ -151,6 +151,10 @@ export class ClassService {
       );
     }
 
+    if (!allClasses.length) {
+      allClasses = [];
+    }
+
     const totalDoc = await this.prisma.class.count({
       where: finalCondition,
     });
