@@ -1,4 +1,4 @@
-import { PartialType } from '@nestjs/mapped-types';
+import { OmitType, PartialType } from '@nestjs/mapped-types';
 import {
   ApiProperty,
   ApiPropertyOptional,
@@ -160,4 +160,20 @@ export class CreateStudentDTO {
   shortDescription: string;
 }
 
-export class UpdateStudentDTO extends PartialType(CreateStudentDTO) {}
+export class UpdateNameDTO extends PartialType(NameDTO) {}
+export class UpdateGuardianDTO extends PartialType(GuardianDTO) {}
+
+// 👇 Omit name & guardian so we can redefine them
+export class UpdateStudentDTO extends PartialType(
+  OmitType(CreateStudentDTO, ['name', 'guardian'] as const),
+) {
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UpdateNameDTO)
+  name?: UpdateNameDTO;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UpdateGuardianDTO)
+  guardian?: UpdateGuardianDTO;
+}

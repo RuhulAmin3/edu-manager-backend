@@ -63,7 +63,7 @@ export class StudentController {
   @ApiOkResponse({ type: [CreateStudentDTO] })
   @ApiOperation({ description: 'update student endpoints' })
   async updateStudent(@Param('id') id: string, @Body() data: UpdateStudentDTO) {
-    const result = await this.studentService.updateStudent(id, data);
+    const result = await this.studentService.updateStudent(id, data as any);
 
     const response = apiResponse({
       statusCode: HttpStatus.OK,
