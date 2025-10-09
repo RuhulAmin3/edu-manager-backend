@@ -189,7 +189,6 @@ export class UserService {
       +soltRound,
     );
     userData.password = hashedPassword;
-
     // check guardian account exist or not
     const isGuardianAccountExist = await this.prismaService.guardian.findFirst({
       where: {

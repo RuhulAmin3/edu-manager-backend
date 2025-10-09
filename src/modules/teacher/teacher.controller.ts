@@ -64,7 +64,7 @@ export class TeacherControler {
   @ApiOkResponse({ type: [CreateTeacherDTO] })
   @ApiOperation({ description: 'update teacher endpoints' })
   async updateTeacher(@Param('id') id: string, @Body() data: UpdateTeacherDTO) {
-    const result = await this.teacherService.updateTeacher(id, data);
+    const result = await this.teacherService.updateTeacher(id, data as any);
 
     const response = apiResponse({
       statusCode: HttpStatus.OK,

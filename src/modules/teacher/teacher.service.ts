@@ -68,10 +68,6 @@ export class TeacherService {
     const totalDoc = await this.prisma.teacher.count({
       where: finalCondition,
     });
-
-    // const totalPages = Math.ceil(totalDoc / +limit);
-    // const nextPage = page < totalPages ? page + 1 : null;
-    // const prevPage = page > 1 ? page - 1 : null;
     const { totalPages, nextPage, prevPage } = PaginationMetaData(
       page,
       totalDoc,
@@ -104,22 +100,35 @@ export class TeacherService {
   }
 
   async updateTeacher(id: string, updateTeacherData: Partial<Teacher>) {
-    const result = await this.prisma.teacher.findUnique({
+    const existingTeacher = await this.prisma.teacher.findUnique({
       where: {
         id,
       },
     });
 
-    if (!result) {
-      throw new NotFoundException('student not found');
+    if (!existingTeacher) {
+      throw new NotFoundException('teacher not found');
     }
 
-    const updatedStudent = await this.prisma.teacher.update({
+    // Merge nested objects safely
+    const updatedName = { ...existingTeacher.name, ...updateTeacherData.name };
+    const updatedEducationalQualification = {
+      ...existingTeacher.educationalQualification,
+      ...updateTeacherData.educationalQualification,
+    };
+
+    const updatedTeacherPayload = {
+      ...updateTeacherData,
+      name: updatedName,
+      educationalQualification: updatedEducationalQualification,
+    };
+
+    const updatedTeacher = await this.prisma.teacher.update({
       where: { id },
-      data: updateTeacherData,
+      data: updatedTeacherPayload,
     });
 
-    return updatedStudent;
+    return updatedTeacher;
   }
 
   async deleteTeacher(id: string) {
