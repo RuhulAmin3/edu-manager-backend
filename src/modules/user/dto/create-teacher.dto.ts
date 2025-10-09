@@ -16,7 +16,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { NameDTO } from './create-student.dto';
-import { BLOOD_GROUP, GENDER } from '@prisma/client';
+import { BLOOD_GROUP, GENDER, TEACHER_TYPE } from '@prisma/client';
 import { OmitType, PartialType } from '@nestjs/mapped-types';
 
 class EducationalQualificationDTO {
@@ -54,6 +54,10 @@ export class CreateTeacherDTO {
   @IsOptional()
   @ApiProperty()
   teacherId: string;
+
+  @IsIn(Object.keys(TEACHER_TYPE))
+  @ApiProperty({ enum: Object.keys(TEACHER_TYPE) })
+  type: TEACHER_TYPE;
 
   @ValidateNested()
   @IsObject()
@@ -123,10 +127,10 @@ export class CreateTeacherDTO {
   shortDescription: string;
 }
 
-export class UpdateNameDTO extends PartialType(NameDTO) {}
+export class UpdateNameDTO extends PartialType(NameDTO) { }
 export class UpdateEducationalQualificationDTO extends PartialType(
   EducationalQualificationDTO,
-) {}
+) { }
 
 export class UpdateTeacherDTO extends PartialType(
   OmitType(CreateTeacherDTO, ['name', 'educationalQualification'] as const),

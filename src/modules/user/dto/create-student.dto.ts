@@ -98,6 +98,7 @@ export class CreateStudentDTO {
   @ApiProperty()
   dateOfBirth: Date;
 
+  @Type(() => Number)
   @IsInt({ message: 'admission year must be number' })
   @IsNotEmpty({ message: 'admission year is required' })
   @ApiProperty()
