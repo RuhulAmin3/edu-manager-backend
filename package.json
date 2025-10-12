@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "private": true,
   "description": "",
-  "license": "UNLICENSED",
   "author": "",
   "scripts": {
     "build": "nest build",
@@ -11,9 +10,10 @@
     "eslint:fix": "npm run eslint:check -- --fix",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "postinstall": "prisma generate",
+    "lint-staged": "lint-staged",
     "lint": "npm run eslint:check && npm run prettier:check",
-    "precommit": "npm run prettier:write && lint-staged && npm run lint",
     "prepare": "husky install",
+    "precommit": "npm run lint-staged",
     "prettier:check": "prettier --check ./**/*.{ts,js,json,*rc}",
     "prettier:write": "prettier --write ./**/*.{ts,js,json,*rc}",
     "start": "nest start",
@@ -25,6 +25,12 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "test:watch": "jest --watch"
+  },
+  "lint-staged": {
+    "*.{ts,js,json}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   },
   "jest": {
     "collectCoverageFrom": [
