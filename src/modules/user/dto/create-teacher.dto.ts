@@ -127,10 +127,10 @@ export class CreateTeacherDTO {
   shortDescription: string;
 }
 
-export class UpdateNameDTO extends PartialType(NameDTO) { }
+export class UpdateNameDTO extends PartialType(NameDTO) {}
 export class UpdateEducationalQualificationDTO extends PartialType(
   EducationalQualificationDTO,
-) { }
+) {}
 
 export class UpdateTeacherDTO extends PartialType(
   OmitType(CreateTeacherDTO, ['name', 'educationalQualification'] as const),

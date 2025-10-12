@@ -27,8 +27,11 @@
     "test:watch": "jest --watch"
   },
   "lint-staged": {
-    "*.{ts,js,json}": [
-      "eslint --fix",
+    "src/**/*.ts": [
+      "prettier --write",
+      "eslint --fix --ext .ts --config eslint.config.mjs"
+    ],
+    "*.{json,md}": [
       "prettier --write"
     ]
   },
