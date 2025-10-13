@@ -251,9 +251,13 @@ export class ClassService {
         'you have to delete all the student of this class first to delete the perticular class',
       );
     }
-    await this.prisma.class.delete({
+    const deletedClass = await this.prisma.class.delete({
       where: { id },
     });
+
+    if (!deletedClass) {
+      throw new BadRequestException('failed to delete the class');
+    }
     // all the exam also be delete (after completing exam module)
   }
 }
