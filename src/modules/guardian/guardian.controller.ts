@@ -67,7 +67,7 @@ export class GuadianController {
     @Param('id') id: string,
     @Body() data: UpdateGuardianDTO,
   ) {
-    const result = await this.guradianService.updateGuardian(id, data);
+    const result = await this.guradianService.updateGuardian(id, data as any);
 
     const response = apiResponse({
       statusCode: HttpStatus.OK,
