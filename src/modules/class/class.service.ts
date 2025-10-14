@@ -183,13 +183,16 @@ export class ClassService {
     if (!result) {
       throw new NotFoundException('class not found');
     }
-
-    if (updatedData.className) {
+    if (
+      updatedData.className.toLowerCase().trim() !==
+      result.className.toLowerCase().trim()
+    ) {
       const isClassAlreadyExist = await this.prisma.class.findUnique({
         where: {
           className: updatedData.className,
         },
       });
+
       if (isClassAlreadyExist) {
         throw new BadRequestException('class already exist');
       }
