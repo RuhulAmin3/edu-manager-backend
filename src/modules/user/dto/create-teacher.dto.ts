@@ -16,17 +16,18 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { NameDTO } from './create-student.dto';
-import { BLOOD_GROUP, GENDER } from '@prisma/client';
-import { PartialType } from '@nestjs/mapped-types';
+import { BLOOD_GROUP, GENDER, TEACHER_TYPE } from '@prisma/client';
+import { OmitType, PartialType } from '@nestjs/mapped-types';
 
 class EducationalQualificationDTO {
   @ApiProperty()
   @IsString()
-  @IsNotEmpty({ message: 'gender must be required' })
+  @IsNotEmpty({ message: 'university name must be required' })
   universityName: string;
+
   @ApiProperty()
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'subject must be required' })
   subject: string;
 
   @ApiPropertyOptional()
@@ -35,9 +36,11 @@ class EducationalQualificationDTO {
 
   @ApiProperty()
   @IsString()
+  @IsNotEmpty({ message: 'graduation must be required' })
   graduation: string;
 
   @ApiPropertyOptional()
+  @Type(() => Number)
   @IsPositive()
   @IsOptional()
   completedYear: number;
@@ -51,6 +54,10 @@ export class CreateTeacherDTO {
   @IsOptional()
   @ApiProperty()
   teacherId: string;
+
+  @IsIn(Object.keys(TEACHER_TYPE))
+  @ApiProperty({ enum: Object.keys(TEACHER_TYPE) })
+  type: TEACHER_TYPE;
 
   @ValidateNested()
   @IsObject()
@@ -83,6 +90,7 @@ export class CreateTeacherDTO {
   designation: string;
 
   @ApiProperty()
+  @Type(() => Number)
   @IsNotEmpty({ message: 'salary is required' })
   @IsPositive({ message: 'salary must be positive number' })
   salary: number;
@@ -119,4 +127,21 @@ export class CreateTeacherDTO {
   shortDescription: string;
 }
 
-export class UpdateTeacherDTO extends PartialType(CreateTeacherDTO) {}
+export class UpdateNameDTO extends PartialType(NameDTO) {}
+export class UpdateEducationalQualificationDTO extends PartialType(
+  EducationalQualificationDTO,
+) {}
+
+export class UpdateTeacherDTO extends PartialType(
+  OmitType(CreateTeacherDTO, ['name', 'educationalQualification'] as const),
+) {
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UpdateNameDTO)
+  name?: UpdateNameDTO;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UpdateEducationalQualificationDTO)
+  educationalQualification?: UpdateEducationalQualificationDTO;
+}

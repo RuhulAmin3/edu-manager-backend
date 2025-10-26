@@ -16,7 +16,7 @@ import {
 } from 'class-validator';
 import { NameDTO } from './create-student.dto';
 import { BLOOD_GROUP, GENDER, GUARDIAN_ACCOUNT_STATUS } from '@prisma/client';
-import { PartialType } from '@nestjs/mapped-types';
+import { OmitType, PartialType } from '@nestjs/mapped-types';
 
 export class CreateGuardianDTO {
   @ApiResponseProperty()
@@ -78,8 +78,8 @@ export class CreateGuardianDTO {
   @IsNotEmpty({ message: 'students is required' })
   students: string[];
 
+  @IsOptional()
   @IsString({ message: 'password must be string' })
-  @IsNotEmpty({ message: 'password is required' })
   @ApiResponseProperty()
   password: string;
 
@@ -88,4 +88,13 @@ export class CreateGuardianDTO {
   shortDescription: string;
 }
 
-export class UpdateGuardianDTO extends PartialType(CreateGuardianDTO) {}
+export class UpdateNameDTO extends PartialType(NameDTO) {}
+
+export class UpdateGuardianDTO extends PartialType(
+  OmitType(CreateGuardianDTO, ['name'] as const),
+) {
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UpdateNameDTO)
+  name?: UpdateNameDTO;
+}

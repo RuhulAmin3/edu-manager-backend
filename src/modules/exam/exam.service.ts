@@ -136,8 +136,9 @@ export class ExamService {
     });
 
     if (!result.length) {
-      throw new NotFoundException('Data Not found');
+      return { data: [] };
     }
+
     const totalDoc = await this.prisma.exam.count({
       where: finalCondition,
     });

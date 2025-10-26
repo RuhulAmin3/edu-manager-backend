@@ -177,7 +177,7 @@ export class UserService {
   ) {
     // set user data
     const userData: Prisma.UserCreateInput = {
-      password: password,
+      password: password || this.configService.get('USER.guardian_pass'),
       role: ROLE.GUARDIAN,
       needPasswordChange: false,
     };
@@ -189,7 +189,6 @@ export class UserService {
       +soltRound,
     );
     userData.password = hashedPassword;
-
     // check guardian account exist or not
     const isGuardianAccountExist = await this.prismaService.guardian.findFirst({
       where: {
@@ -199,17 +198,17 @@ export class UserService {
       },
     });
 
+    if (isGuardianAccountExist) {
+      throw new ConflictException(
+        'guardian account already exist for the students',
+      );
+    }
     // generate guardian Id
     const guardianId = await this.userUtils.generateGuardianId();
 
     userData['guardianId'] = guardianId;
     guardianData.guardianId = guardianId;
 
-    if (isGuardianAccountExist) {
-      throw new ConflictException(
-        'guardian account already exist for the students',
-      );
-    }
     try {
       const { secure_url, public_id } =
         await this.cloudinaryService.uploadImageToCloud(file);

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -106,31 +107,60 @@ export class SubjectService {
   }
 
   async updateSubject(id: string, updatedData: Prisma.SubjectUpdateInput) {
-    const result = await this.prisma.subject.findUnique({
-      where: {
-        id,
-      },
-    });
-
-    if (!result) {
-      throw new NotFoundException('subject not found');
+    // Validate input data
+    if (!id || !updatedData || Object.keys(updatedData).length === 0) {
+      throw new BadRequestException('Invalid or empty update data provided');
     }
 
-    const isExist = await this.prisma.subject.findUnique({
-      where: {
-        code: updatedData.code as number,
-      },
+    // Check if subject exists
+    const existingSubject = await this.prisma.subject.findUnique({
+      where: { id },
     });
 
-    if (isExist?.id != id) {
-      throw new ConflictException('subject code already exist');
+    if (!existingSubject) {
+      throw new NotFoundException('Subject not found');
     }
 
+    // Check for code uniqueness if code is being updated
+    if (updatedData.code && updatedData.code !== existingSubject.code) {
+      const subjectWithSameCode = await this.prisma.subject.findFirst({
+        where: {
+          code: updatedData.code as number,
+          id: { not: id }, // Exclude current subject
+        },
+      });
+
+      if (subjectWithSameCode) {
+        throw new ConflictException(
+          `Subject code '${updatedData.code}' is already in use`,
+        );
+      }
+    }
+
+    // Check for title uniqueness if title is being updated
+    if (
+      updatedData.title &&
+      updatedData.title.toString().toLowerCase() !==
+        existingSubject.title.toString().toLowerCase()
+    ) {
+      const subjectWithSameTitle = await this.prisma.subject.findFirst({
+        where: {
+          title: updatedData.title as string,
+          id: { not: id }, // Exclude current subject
+        },
+      });
+
+      if (subjectWithSameTitle) {
+        throw new ConflictException(
+          `Subject title '${updatedData.title}' is already in use`,
+        );
+      }
+    }
+    // Update the subject
     const updatedSubject = await this.prisma.subject.update({
       where: { id },
       data: updatedData,
     });
-
     return updatedSubject;
   }
 

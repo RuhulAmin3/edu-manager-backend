@@ -151,6 +151,10 @@ export class ClassService {
       );
     }
 
+    if (!allClasses.length) {
+      allClasses = [];
+    }
+
     const totalDoc = await this.prisma.class.count({
       where: finalCondition,
     });
@@ -179,13 +183,16 @@ export class ClassService {
     if (!result) {
       throw new NotFoundException('class not found');
     }
-
-    if (updatedData.className) {
+    if (
+      updatedData.className.toLowerCase().trim() !==
+      result.className.toLowerCase().trim()
+    ) {
       const isClassAlreadyExist = await this.prisma.class.findUnique({
         where: {
           className: updatedData.className,
         },
       });
+
       if (isClassAlreadyExist) {
         throw new BadRequestException('class already exist');
       }
@@ -247,9 +254,13 @@ export class ClassService {
         'you have to delete all the student of this class first to delete the perticular class',
       );
     }
-    await this.prisma.class.delete({
+    const deletedClass = await this.prisma.class.delete({
       where: { id },
     });
+
+    if (!deletedClass) {
+      throw new BadRequestException('failed to delete the class');
+    }
     // all the exam also be delete (after completing exam module)
   }
 }

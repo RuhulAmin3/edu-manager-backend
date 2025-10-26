@@ -13,12 +13,17 @@ import {
 } from 'class-validator';
 
 class ExamSubject {
-  @IsNotEmpty()
+  @Type(() => Number)
+  @IsNotEmpty({
+    message: 'total mark is required',
+  })
   @IsPositive()
   @ApiProperty()
   totalMark: number;
 
-  @IsNotEmpty()
+  @IsNotEmpty({
+    message: 'subjectId is required',
+  })
   @IsMongoId({ message: 'id must be mongodb Id' })
   @ApiProperty()
   subjectId: string;
