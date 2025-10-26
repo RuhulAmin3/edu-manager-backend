@@ -12,7 +12,7 @@
     "postinstall": "prisma generate",
     "lint-staged": "lint-staged",
     "lint": "npm run eslint:check && npm run prettier:check",
-    "prepare": "husky install",
+    "prepare": "husky && husky install",
     "precommit": "npm run lint-staged",
     "prettier:check": "prettier --check ./**/*.{ts,js,json,*rc}",
     "prettier:write": "prettier --write ./**/*.{ts,js,json,*rc}",
