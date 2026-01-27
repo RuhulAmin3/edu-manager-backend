@@ -1,9 +1,14 @@
 {
   "version": 2,
+  "buildCommand": "npm run build",
+  "installCommand": "npm install && npx prisma generate",
   "builds": [
     {
       "src": "dist/main.js",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["dist/**", "node_modules/@prisma/client/**"]
+      }
     }
   ],
   "routes": [
@@ -11,5 +16,8 @@
       "src": "/(.*)",
       "dest": "dist/main.js"
     }
-  ]
+  ],
+  "env": {
+    "PORT": "4000"
+  }
 }
