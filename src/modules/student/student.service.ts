@@ -7,10 +7,14 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Injectable()
 export class StudentService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   async getAllStudent(searchOptions, paginationOptions) {
     const { page, limit, skip, sortBy, sortOrder } =
@@ -95,55 +99,98 @@ export class StudentService {
   }
 
   async updateStudent(id: string, updatedStudentData: Partial<Student>) {
-    const result = await this.prisma.student.findUnique({
-      where: {
-        id,
-      },
+    const existingStudent = await this.prisma.student.findUnique({
+      where: { id },
     });
 
-    if (!result) {
-      throw new NotFoundException('student not found');
+    if (!existingStudent) {
+      throw new NotFoundException('Student not found');
     }
 
-    let updatedStudent;
-    if (result.className == updatedStudentData.className) {
-      updatedStudent = await this.prisma.student.update({
+    // Merge nested objects safely
+    const updatedName = { ...existingStudent.name, ...updatedStudentData.name };
+    const updatedGuardian = {
+      ...existingStudent.guardian,
+      ...updatedStudentData.guardian,
+    };
+
+    const updatedStudentPayload = {
+      ...updatedStudentData,
+      name: updatedName,
+      guardian: updatedGuardian,
+    };
+
+    // ✅ If class is unchanged — simple update
+    if (
+      !updatedStudentData.className ||
+      existingStudent.className === updatedStudentData.className
+    ) {
+      return await this.prisma.student.update({
         where: { id },
-        data: updatedStudentData,
-      });
-    } else {
-      const isClassExist = await this.prisma.class.findUnique({
-        where: { className: updatedStudentData.className },
-      });
-      if (!isClassExist) {
-        throw new BadRequestException('update class does not added yet');
-      }
-      updatedStudent = await this.prisma.$transaction(async (tsx) => {
-        const { studentIds } = await tsx.class.findUnique({
-          where: { className: updatedStudentData.className },
-        });
-
-        await tsx.class.update({
-          where: {
-            className: updatedStudentData.className,
-          },
-          data: {
-            studentIds: {
-              set: [...studentIds, updatedStudentData.studentId],
-            },
-          },
-        });
-
-        const result = await tsx.student.update({
-          where: {
-            id,
-          },
-          data: updatedStudentData,
-        });
-
-        return result;
+        data: updatedStudentPayload,
       });
     }
+
+    // ✅ Validate class and studentId before transaction
+    if (!updatedStudentData.studentId) {
+      throw new BadRequestException('Student ID is required for class change');
+    }
+
+    const newClass = await this.prisma.class.findUnique({
+      where: { className: updatedStudentData.className },
+      select: { studentIds: true },
+    });
+
+    if (!newClass) {
+      throw new BadRequestException('New class does not exist');
+    }
+
+    const previousClass = await this.prisma.class.findUnique({
+      where: { className: existingStudent.className },
+      select: { studentIds: true },
+    });
+
+    if (!previousClass) {
+      throw new NotFoundException('Previous class not found');
+    }
+
+    // ✅ Transaction
+    const updatedStudent = await this.prisma.$transaction(async (trx) => {
+      const prevIds = previousClass.studentIds ?? [];
+      const newIds = newClass.studentIds ?? [];
+
+      // 1. Remove student from previous class
+      await trx.class.update({
+        where: { className: existingStudent.className },
+        data: {
+          studentIds: {
+            set: prevIds.filter((sid) => sid !== updatedStudentData.studentId),
+          },
+        },
+      });
+
+      // 2. Add student to new class (only if not already exists)
+      const updatedNewIds = newIds.includes(updatedStudentData.studentId)
+        ? newIds
+        : [...newIds, updatedStudentData.studentId];
+
+      await trx.class.update({
+        where: { className: updatedStudentData.className },
+        data: {
+          studentIds: {
+            set: updatedNewIds,
+          },
+        },
+      });
+
+      // 3. Update student info
+      const student = await trx.student.update({
+        where: { id },
+        data: updatedStudentPayload,
+      });
+
+      return student;
+    });
 
     return updatedStudent;
   }
@@ -154,9 +201,11 @@ export class StudentService {
         id,
       },
     });
-
     if (!result) {
       throw new NotFoundException('student not found');
+    }
+    if (result.imagePublicId) {
+      await this.cloudinaryService.deleteImageFromCloud(result.imagePublicId);
     }
 
     await this.prisma.$transaction(async (tsx) => {

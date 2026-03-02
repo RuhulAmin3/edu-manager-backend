@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
   HttpStatus,
+  Param,
   Post,
   UploadedFile,
   UseInterceptors,
@@ -21,20 +23,19 @@ import { Public } from '../auth/decorator/public.decorator';
 @ApiTags('User')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-
   @Post('/student')
   @UseInterceptors(
-    FileInterceptor('file', multerOptions),
+    FileInterceptor('image', multerOptions),
     new JsonParseInterceptor('student'),
   )
   async createStudent(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() image: Express.Multer.File,
     @Body('student') student: CreateStudentDTO,
     @Body('password') password: string,
   ) {
     const result = await this.userService.createStudent(
       student,
-      file,
+      image,
       password,
     );
     const responseObj = apiResponse<CreateStudentDTO>({
@@ -47,17 +48,17 @@ export class UserController {
 
   @Post('/teacher')
   @UseInterceptors(
-    FileInterceptor('file', multerOptions),
+    FileInterceptor('image', multerOptions),
     new JsonParseInterceptor('teacher'),
   )
   async createTeacher(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() image: Express.Multer.File,
     @Body('teacher') teacher: CreateTeacherDTO,
     @Body('password') password: string,
   ) {
     const result = await this.userService.createTeacher(
       teacher,
-      file,
+      image,
       password,
     );
 
@@ -72,17 +73,17 @@ export class UserController {
   @Post('/guardian')
   @Public()
   @UseInterceptors(
-    FileInterceptor('file', multerOptions),
+    FileInterceptor('image', multerOptions),
     new JsonParseInterceptor('guardian'),
   )
   async createGuardian(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() image: Express.Multer.File,
     @Body('guardian') guardian: CreateGuardianDTO,
   ) {
     const { password, ...restData } = guardian;
     const result = await this.userService.createGuardian(
       restData,
-      file,
+      image,
       password,
     );
 
@@ -90,6 +91,28 @@ export class UserController {
       statusCode: HttpStatus.CREATED,
       data: result,
       message: 'guardian created successfully',
+    });
+    return responseObj;
+  }
+
+  @Post('/file-upload')
+  @UseInterceptors(FileInterceptor('image', multerOptions))
+  async fileUpload(@UploadedFile() image: Express.Multer.File) {
+    const url = await this.userService.uploadFile(image);
+    const responseObj = apiResponse({
+      statusCode: HttpStatus.OK,
+      data: url,
+      message: 'file uploaded successfully',
+    });
+    return responseObj;
+  }
+
+  @Delete('/file-remove/:publicId')
+  async fileRemove(@Param('publicId') publicId: string) {
+    await this.userService.removeFile(publicId);
+    const responseObj = apiResponse({
+      statusCode: HttpStatus.OK,
+      message: 'file deleted successfully',
     });
     return responseObj;
   }

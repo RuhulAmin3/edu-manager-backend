@@ -9,6 +9,7 @@ export const guardianFilterAbleField = [
   'guardianId',
   'gender',
   'contactNo',
+  'bloodGroup',
   'occupation',
   'accountStatus',
 ];

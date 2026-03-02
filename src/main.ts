@@ -1,15 +1,14 @@
-import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';
-import * as cookieParser from 'cookie-parser';
-import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
-import { Response } from 'express';
 import { SwaggerSetup } from './swagger-setup';
+import * as cookieParser from 'cookie-parser';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { Response } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-
   const configService = app.get(ConfigService);
   const { port, global_prefix } = configService.get('APP');
 
@@ -24,7 +23,11 @@ async function bootstrap() {
   );
 
   const corsOptions = {
-    origin: 'http://localhost:5173',
+    origin: [
+      'https://edu-manager-sass.netlify.app',
+      'https://edu-manager.netlify.app',
+      'http://localhost:5173',
+    ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'],
     allowedHeaders: [
       'Content-Type',
@@ -38,6 +41,7 @@ async function bootstrap() {
     ],
     credentials: true,
   };
+
   // Enable CORS to allow any domain
   app.enableCors(corsOptions);
 

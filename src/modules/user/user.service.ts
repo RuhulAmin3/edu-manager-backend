@@ -31,7 +31,6 @@ export class UserService {
         : this.configService.get('USER.student_pass'),
       role: ROLE.STUDENT,
     };
-
     // password hashed
     const hashedPassword = await this.userUtils.hashedPassword(
       userData.password,
@@ -67,10 +66,10 @@ export class UserService {
     }
 
     try {
-      const { secure_url } =
+      const { secure_url, public_id } =
         await this.cloudinaryService.uploadImageToCloud(file);
       studentData.image = secure_url;
-
+      studentData['imagePublicId'] = public_id;
       const result = await this.prismaService.$transaction(async (tsx) => {
         const user = await tsx.user.create({
           data: userData,
@@ -146,10 +145,10 @@ export class UserService {
     userData['teacherId'] = teacherId;
     teacherData.teacherId = teacherId;
     try {
-      // const { secure_url } =
-      //   await this.cloudinaryService.uploadImageToCloud(file);
-      teacherData.image =
-        'https://res.cloudinary.com/dwykyqzzk/image/upload/v1708335326/zbsav7bbwwtvpvo70mkb.jpg';
+      const { secure_url, public_id } =
+        await this.cloudinaryService.uploadImageToCloud(file);
+      teacherData.image = secure_url;
+      teacherData['imagePublicId'] = public_id;
 
       const result = await this.prismaService.$transaction(async (tsx) => {
         const user = await tsx.user.create({
@@ -178,7 +177,7 @@ export class UserService {
   ) {
     // set user data
     const userData: Prisma.UserCreateInput = {
-      password: password,
+      password: password || this.configService.get('USER.guardian_pass'),
       role: ROLE.GUARDIAN,
       needPasswordChange: false,
     };
@@ -190,7 +189,6 @@ export class UserService {
       +soltRound,
     );
     userData.password = hashedPassword;
-
     // check guardian account exist or not
     const isGuardianAccountExist = await this.prismaService.guardian.findFirst({
       where: {
@@ -200,22 +198,22 @@ export class UserService {
       },
     });
 
+    if (isGuardianAccountExist) {
+      throw new ConflictException(
+        'guardian account already exist for the students',
+      );
+    }
     // generate guardian Id
     const guardianId = await this.userUtils.generateGuardianId();
 
     userData['guardianId'] = guardianId;
     guardianData.guardianId = guardianId;
 
-    if (isGuardianAccountExist) {
-      throw new ConflictException(
-        'guardian account already exist for the students',
-      );
-    }
     try {
-      // const { secure_url } =
-      //   await this.cloudinaryService.uploadImageToCloud(file);
-      guardianData.image =
-        'https://res.cloudinary.com/dwykyqzzk/image/upload/v1708335326/zbsav7bbwwtvpvo70mkb.jpg';
+      const { secure_url, public_id } =
+        await this.cloudinaryService.uploadImageToCloud(file);
+      guardianData.image = secure_url;
+      guardianData['imagePublicId'] = public_id;
 
       const result = await this.prismaService.$transaction(async (tsx) => {
         const user = await tsx.user.create({
@@ -233,6 +231,25 @@ export class UserService {
       return result;
     } catch (err) {
       console.log(err);
+      throw new BadRequestException(err);
+    }
+  }
+
+  async uploadFile(file: Express.Multer.File) {
+    try {
+      const { secure_url, public_id } =
+        await this.cloudinaryService.uploadImageToCloud(file);
+      return { url: secure_url, public_id };
+    } catch (err) {
+      throw new BadRequestException(err);
+    }
+  }
+
+  async removeFile(public_id: string) {
+    try {
+      await this.cloudinaryService.deleteImageFromCloud(public_id);
+      return 'successfully deleted file';
+    } catch (err) {
       throw new BadRequestException(err);
     }
   }
